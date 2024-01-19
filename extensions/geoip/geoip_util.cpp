@@ -192,6 +192,9 @@ const char *getLang(int target)
 					}
 					return code;
 				}
+				if ((strcmp(code, "chi") == 0 || strcmp(code, "cho") == 0) && strcmp("zh-CN", mmdb.metadata.languages.names[i]) == 0){
+					return "zh-CN";
+				}
 			}
 		}
 	}
