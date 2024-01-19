@@ -13,9 +13,9 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             os_short: linux
             compiler_cc: clang-8
             compiler_cxx: clang++-8
