@@ -180,14 +180,19 @@ const char *getLang(int target)
 		{
 			langid = translator->GetServerLanguage();
 		}
-
 		if (translator->GetLanguageInfo(langid, &code, NULL))
 		{
 			for (size_t i = 0; i < mmdb.metadata.languages.count; i++)
 			{
 				if (strcmp(code, mmdb.metadata.languages.names[i]) == 0)
 				{
+					if (strcmp(code, "chi") == 0 || strcmp(code, "cho") == 0){
+						return "zh-CN";
+					}
 					return code;
+				}
+				if ((strcmp(code, "chi") == 0 || strcmp(code, "cho") == 0) && strcmp("zh-CN", mmdb.metadata.languages.names[i]) == 0){
+					return "zh-CN";
 				}
 			}
 		}
