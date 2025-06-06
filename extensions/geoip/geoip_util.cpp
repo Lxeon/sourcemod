@@ -183,13 +183,13 @@ const char *getLang(int target)
 
 		if (translator->GetLanguageInfo(langid, &code, NULL))
 		{
+			if (strcmp(code, "chi") == 0 || strcmp(code, "zho") == 0) {
+				return "zh-CN";
+			}
 			for (size_t i = 0; i < mmdb.metadata.languages.count; i++)
 			{
 				if (strcmp(code, mmdb.metadata.languages.names[i]) == 0)
 				{
-					if (strcmp(code, "chi") == 0 || strcmp(code, "zho") == 0) {
-						return "zh-CN";
-					}
 					return code;
 				}
 			}
