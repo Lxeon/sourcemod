@@ -8,6 +8,7 @@ on:
     branches:
      - master
      - '[0-9]+.[0-9]+-dev'
+  workflow_dispatch:
 jobs:
   test:
     strategy:
@@ -51,7 +52,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-mysql${{ env.MYSQL_VERSION }}-mmsource${{ env.MMSOURCE_VERSION }}-
             ${{ runner.os }}-build-${{ env.cache-name }}-mysql${{ env.MYSQL_VERSION }}-
-
       # Setup Python for AMBuild
       - uses: actions/setup-python@v5
         name: Setup Python 3.8
@@ -60,17 +60,14 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-
       - name: Install dependencies
         shell: bash
         run: |
           mkdir -p ${{ env.DEPENDENCIES_FOLDER }}
           cd ${{ env.DEPENDENCIES_FOLDER }}
-
           # Satisfy checkout-deps requirement for a "sourcemod" folder.
           mkdir -p sourcemod
           ../sourcemod/tools/checkout-deps.sh -s ${{ join(fromJSON(env.SDKS)) }} -d
-
       - name: Install Linux dependencies
         if: startsWith(runner.os, 'Linux')
         run: |
@@ -80,7 +77,6 @@ jobs:
             gcc-multilib g++-multilib libstdc++6 lib32stdc++6 \
             libc6-dev libc6-dev-i386 linux-libc-dev \
             linux-libc-dev:i386 lib32z1-dev ${{ matrix.compiler_cc }}
-
       - name: Select clang compiler
         if: startsWith(runner.os, 'Linux')
         run: |
@@ -88,7 +84,6 @@ jobs:
           echo "CXX=${{ matrix.compiler_cxx }}" >> $GITHUB_ENV
           ${{ matrix.compiler_cc }} --version
           ${{ matrix.compiler_cxx }} --version
-
       - name: Build
         working-directory: sourcemod
         run: |
@@ -96,3 +91,8 @@ jobs:
           cd build
           python ../configure.py --enable-optimize --sdks=${{ join(fromJSON(env.SDKS)) }} --targets=${{ env.ARCH }} --mms-path=${{ env.DEPENDENCIES_ROOT }}/mmsource-${{ env.MMSOURCE_VERSION }} --hl2sdk-root=${{ env.DEPENDENCIES_ROOT }} --mysql-path=${{ env.DEPENDENCIES_ROOT }}/mysql-${{ env.MYSQL_VERSION }} --mysql64-path=${{ env.DEPENDENCIES_ROOT }}/mysql-${{ env.MYSQL_VERSION }}-x86_64
           ambuild
+      - name: Archive Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: sourcemod-${{ env.SM_VERSION }}-${{ matrix.os }}-${{ matrix.compiler_cc }}
+          path: ./sourcemod/build
